@@ -1,0 +1,24 @@
+# Compiled object files
+*.o
+*.obj
+
+# Compiled dynamic libraries (DLL files)
+*.so
+*.dylib
+*.dll
+
+# Compiled static libraries (.lib files)
+*.a
+*.lib
+
+# CMake build directory
+cmake-build-*/
+
+# Compiled binaries
+bin/
+
+# IDE project files
+.idea/
+
+# Other build artifacts
+build/
