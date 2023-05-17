@@ -3,4 +3,4 @@ project(Dublicate_File_Tracker)
 
 set(CMAKE_CXX_STANDARD 14)
 
-add_executable(Dublicate_File_Tracker main.cpp)
+add_executable(Dublicate_File_Tracker main.cpp logger.cpp logger.h)
