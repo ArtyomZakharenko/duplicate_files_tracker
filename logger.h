@@ -1,20 +1,20 @@
-
-#ifndef DUBLICATE_FILE_TRACKER_LOGGER_H
-#define DUBLICATE_FILE_TRACKER_LOGGER_H
+#ifndef DUPLICATE_FILE_TRACKER_LOGGER_H
+#define DUPLICATE_FILE_TRACKER_LOGGER_H
 
 #include <string>
 #include <fstream>
 
 class Logger {
 public:
-    Logger();
-    void set_log_file_name(const std::string& filename);
+    explicit Logger();
     void log(const std::string& message);
+    ~Logger();
 
 private:
     std::ofstream file_stream;
 
+    static std::string get_log_file_name();
 };
 
 
-#endif //DUBLICATE_FILE_TRACKER_LOGGER_H
+#endif //DUPLICATE_FILE_TRACKER_LOGGER_H

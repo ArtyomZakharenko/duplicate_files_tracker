@@ -1,45 +1,42 @@
 #include "file_handler.h"
+#include "file_hasher.h"
 
-void FileHandler::run(int argc, char *argv[]) {
-    bool recursive = false;
-    std::string directory;
+#include <iostream>
+#include <vector>
+#include <dirent.h>
+#include <sys/stat.h>
+#include <unistd.h>
+#include <fcntl.h>
+#include <cstring>
+#include <algorithm>
+#include <utility>
 
-    if (argc == 3 && std::string(argv[1]) == "-r") {
-        recursive = true;
-        directory = argv[2];
-    } else if (argc == 2) {
-        directory = argv[1];
-    } else {
-        print_usage();
-        return;
-    }
-
-    logger.set_log_file_name(get_log_file_name());
-
+void DuplicateFinder::run(const std::string& directory, bool recursive) {
     find_files(directory, recursive);
     find_duplicates();
+    replace_duplicates();
 }
 
-void FileHandler::print_usage() {
-    std::cerr << "Usage: ./duplicate_finder [-r] <directory>" << std::endl;
+void DuplicateFinder::print_usage() {
+    std::cerr << "Usage: ./Duplicate_File_Tracker [-r] <directory>" << std::endl;
 }
 
-void FileHandler::find_files(const std::string &directory, bool recursive) {
-    DIR *dir = opendir(directory.c_str());
+void DuplicateFinder::find_files(const std::string& folder, bool recursive_mode) {
+    DIR* dir = opendir(folder.c_str());
     if (!dir) {
-        std::cerr << "Error opening directory: " << directory << std::endl;
+        std::cerr << "Error opening folder: " << folder << std::endl;
         return;
     }
 
-    dirent *entry;
+    dirent* entry;
     while ((entry = readdir(dir)) != nullptr) {
         if (entry->d_type == DT_DIR) {
-            if (recursive && strcmp(entry->d_name, ".") != 0 && strcmp(entry->d_name, "..") != 0) {
-                std::string sub_directory = directory + "/" + entry->d_name;
-                find_files(sub_directory, recursive);
+            if (recursive_mode && strcmp(entry->d_name, ".") != 0 && strcmp(entry->d_name, "..") != 0) {
+                std::string sub_directory = folder + "/" + entry->d_name;
+                find_files(sub_directory, recursive_mode);
             }
         } else if (entry->d_type == DT_REG) {
-            std::string filename = directory + "/" + entry->d_name;
+            std::string filename = folder + "/" + entry->d_name;
             std::string hash = FileHasher::calculate_md5(filename);
 
             if (!hash.empty()) {
@@ -51,10 +48,9 @@ void FileHandler::find_files(const std::string &directory, bool recursive) {
     }
 
     closedir(dir);
-
 }
 
-void FileHandler::find_duplicates() {
+void DuplicateFinder::find_duplicates() {
     for (const auto& pair : files_by_hash) {
         const std::vector<std::string>& files = pair.second;
         if (files.size() > 1) {
@@ -66,54 +62,58 @@ void FileHandler::find_duplicates() {
 
             logger.log("");
         }
-
-        replace_duplicates(files);
     }
 }
 
-void FileHandler::replace_duplicates(const std::vector<std::string> &files) {
-     if (files.empty()) {
-        return;
-    }
-
-    const std::string& first_file = files[0];
-
-    // Получение прав доступа первого файла
-    struct stat file_stat;
-    if (stat(first_file.c_str(), &file_stat) != 0) {
-        std::cerr << "Error getting file permissions: " << first_file << std::endl;
-        return;
-    }
-    mode_t permissions = file_stat.st_mode;
-
-    // Удаление каждого дубликата, кроме первого файла, и создание жесткой ссылки
-    for (size_t i = 1; i < files.size(); ++i) {
-        const std::string& duplicate_path = files[i];
-
-        if (unlink(duplicate_path.c_str()) == 0) {
-            logger.log("Removed duplicate file: " + duplicate_path);
-
-            if (link(first_file.c_str(), duplicate_path.c_str()) != 0) {
-                std::cerr << "Error creating hard link for file: " << duplicate_path << std::endl;
-            } else {
-                // Установка прав доступа для созданной жесткой ссылки
-                if (chmod(duplicate_path.c_str(), permissions) != 0) {
-                    std::cerr << "Error setting file permissions: " << duplicate_path << std::endl;
+void DuplicateFinder::replace_duplicates() {
+    for (const auto& pair : files_by_hash) {
+        const std::vector<std::string>& files = pair.second;
+        if (files.size() > 1) {
+            // Получение времени последней модификации для каждого файла
+            std::vector<std::pair<std::string, time_t>> file_times;
+            for (const std::string& file : files) {
+                struct stat file_stat;
+                if (stat(file.c_str(), &file_stat) != 0) {
+                    std::cerr << "Error getting file information: " << file << std::endl;
+                    continue;
                 }
-                logger.log("Added hard link: " + duplicate_path);
+                file_times.emplace_back(file, file_stat.st_mtime);
             }
-        } else {
-            std::cerr << "Error removing duplicate file: " << duplicate_path << std::endl;
+
+            // Сортировка файлов по времени последней модификации в порядке возрастания
+            std::sort(file_times.begin(), file_times.end(),
+                      [](const auto& a, const auto& b) {
+                          return a.second < b.second;
+                      });
+
+            const std::string& oldest_file = file_times.front().first;
+
+            // Удаление каждого дубликата, кроме самого старого файла, и создание жесткой ссылки
+            for (size_t i = 1; i < file_times.size(); ++i) {
+                const std::string& duplicate_path = file_times[i].first;
+
+                if (unlink(duplicate_path.c_str()) == 0) {
+                    logger.log("Removed duplicate file: " + duplicate_path);
+
+                    if (link(oldest_file.c_str(), duplicate_path.c_str()) != 0) {
+                        std::cerr << "Error creating hard link for file: " << duplicate_path << std::endl;
+                    } else {
+                        // Установка прав доступа для созданной жесткой ссылки
+                        struct stat oldest_file_stat;
+                        if (stat(oldest_file.c_str(), &oldest_file_stat) != 0) {
+                            std::cerr << "Error getting file permissions: " << oldest_file << std::endl;
+                            continue;
+                        }
+                        mode_t permissions = oldest_file_stat.st_mode;
+
+                        if (chmod(duplicate_path.c_str(), permissions) != 0) {
+                            std::cerr << "Error setting file permissions: " << duplicate_path << std::endl;
+                        }
+                    }
+                } else {
+                    std::cerr << "Error removing duplicate file: " << duplicate_path << std::endl;
+                }
+            }
         }
     }
-}
-
-std::string FileHandler::get_log_file_name() {
-    std::time_t now = std::time(nullptr);
-    std::tm *time_info = std::localtime(&now);
-
-    char filename[64];
-    std::strftime(filename, sizeof(filename), "Log_%Y-%m-%d.%H:%M:%S.txt", time_info);
-
-    return std::string(filename);
 }
