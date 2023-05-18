@@ -6,7 +6,7 @@
 #include <vector>
 #include "logger.h"
 
-class DuplicateFinder {
+class DuplicatesHandler {
 private:
     std::unordered_map<std::string, std::vector<std::string>> files_by_hash;
     Logger logger;
@@ -17,10 +17,12 @@ public:
 
 private:
     void find_files(const std::string& folder, bool recursive_mode);
+    void sort_by_creation_time();
     void find_duplicates();
     void replace_duplicates();
 
+    void remove_duplicate(const std::string &path);
+    void create_hard_link(const std::string &path_from, const std::string &path_to);
 };
-
 
 #endif //DUPLICATE_FILE_TRACKER_FILE_HANDLER_H

@@ -1,4 +1,4 @@
-#include "file_handler.h"
+#include "duplicates_handler.h"
 
 int main(int argc, char* argv[]) {
     bool recursive = false;
@@ -10,10 +10,11 @@ int main(int argc, char* argv[]) {
     } else if (argc == 2) {
         directory = argv[1];
     } else {
-        DuplicateFinder::print_usage();
+        DuplicatesHandler::print_usage();
+        return 0;
     }
 
-    DuplicateFinder file_handler;
+    DuplicatesHandler file_handler;
     file_handler.run(directory, recursive);
     return 0;
 }

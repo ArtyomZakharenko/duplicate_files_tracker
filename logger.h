@@ -12,9 +12,7 @@ public:
 
 private:
     std::ofstream file_stream;
-
     static std::string get_log_file_name();
 };
-
 
 #endif //DUPLICATE_FILE_TRACKER_LOGGER_H

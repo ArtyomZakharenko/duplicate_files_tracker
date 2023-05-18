@@ -1,6 +1,6 @@
-#include "file_hasher.h"
+#include "hash_generator.h"
 
-std::string FileHasher::calculate_md5(const std::string& filepath) {
+std::string HashGenerator::calculate_md5(const std::string& filepath) {
     EVP_MD_CTX* md_ctx = EVP_MD_CTX_new();
     if (!md_ctx) {
         return "";
