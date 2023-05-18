@@ -14,5 +14,6 @@ void Logger::log(const std::string& message) {
     std::cout << message << std::endl;
     if (file_stream.is_open()) {
         file_stream.write(message.c_str(), message.size());
+        file_stream.write("\n", 1);
     }
 }
