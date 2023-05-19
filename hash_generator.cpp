@@ -49,5 +49,5 @@ std::string HashGenerator::calculate_md5(const std::string& filepath) {
         sprintf(&md5_string[i * 2], "%02x", static_cast<unsigned int>(hash[i]));
     }
 
-    return std::string(md5_string);
+    return md5_string;
 }

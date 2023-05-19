@@ -3,7 +3,6 @@
 #include "logger.h"
 
 Logger::Logger() {
-    //create folder Logs if it doesn't exist and open log file
     mkdir("Logs", 0777);
     std::string log_file_name = get_log_file_name();
     file_stream.open("Logs/" + log_file_name, std::ios::out | std::ios::app);
