@@ -13,7 +13,6 @@ private:
 
 public:
     void run(const std::string& directory, bool recursive);
-    static void print_usage();
 
 private:
     void find_files(const std::string& folder, bool recursive_mode);
