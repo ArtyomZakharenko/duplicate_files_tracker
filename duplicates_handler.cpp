@@ -17,12 +17,6 @@ void DuplicatesHandler::run(const std::string &directory, bool recursive) {
     replace_duplicates();
 }
 
-void DuplicatesHandler::print_usage() {
-    std::cout << "Usage: ./Duplicate_File_Tracker [-r] <directory>" << std::endl;
-    std::cout << "Options:" << std::endl;
-    std::cout << "-r\t\tRecursive mode. Search for duplicates in all subdirectories of the given directory." << std::endl;
-}
-
 void DuplicatesHandler::find_files(const std::string &folder, bool recursive_mode) {
     DIR *dir = opendir(folder.c_str());
     if (!dir) {
