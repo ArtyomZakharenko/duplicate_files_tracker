@@ -4,15 +4,15 @@
 #include <string>
 #include <fstream>
 
-class Logger {
+class Logger { // класс для логирования
 public:
-    explicit Logger();
-    void log(const std::string& message);
-    ~Logger();
+    explicit Logger(); // конструктор
+    void log(const std::string& message); // логирование сообщения
+    ~Logger(); // деструктор
 
 private:
-    std::ofstream file_stream;
-    static std::string get_log_file_name();
+    std::ofstream file_stream; // поток для записи в файл
+    static std::string get_log_file_name(); // получить имя файла для логирования
 };
 
 #endif //DUPLICATE_FILE_TRACKER_LOGGER_H
