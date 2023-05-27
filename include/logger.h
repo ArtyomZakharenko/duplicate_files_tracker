@@ -8,7 +8,6 @@ class Logger { // класс для логирования
 public:
     explicit Logger(); // конструктор
     void log(const std::string& message); // логирование сообщения
-    ~Logger(); // деструктор
 
 private:
     std::ofstream file_stream; // поток для записи в файл

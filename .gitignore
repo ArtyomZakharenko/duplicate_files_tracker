@@ -22,3 +22,5 @@ bin/
 
 # Other build artifacts
 build/
+debug/
+release/

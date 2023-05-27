@@ -1,8 +1,7 @@
-#include "duplicates_handler.h"
-#include "hash_generator.h"
+#include "../include/duplicates_handler.h"
+#include "../include/hash_generator.h"
 
 #include <iostream>
-#include <vector>
 #include <dirent.h>
 #include <sys/stat.h>
 #include <unistd.h>

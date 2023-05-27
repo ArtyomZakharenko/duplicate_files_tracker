@@ -1,4 +1,4 @@
-#include "hash_generator.h"
+#include "../include/hash_generator.h"
 
 std::string HashGenerator::calculate_md5(const std::string& filepath) { // реализация метода вычисления хеша
     EVP_MD_CTX* md_ctx = EVP_MD_CTX_new(); // создание контекста

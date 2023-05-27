@@ -1,6 +1,5 @@
 #include <iostream>
-#include "duplicates_handler.h"
-
+#include "../include/duplicates_handler.h"
 
 void print_usage();
 
