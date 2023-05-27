@@ -8,15 +8,15 @@ Logger::Logger() { // реализация конструктора
     file_stream.open("Logs/" + log_file_name, std::ios::out | std::ios::app); // открытие файла для логирования
 if (!file_stream.is_open()) { // если файл не открылся
         std::cerr << "Could not open log file: " << log_file_name << std::endl; // выводим сообщение об ошибке
+    } else { // если файл открылся
+        chmod(("Logs/" + log_file_name).c_str(), 0777); // установка прав доступа 0777 для файла
     }
 }
-
 
 void Logger::log(const std::string& message) { // реализация метода логирования
     std::cout << message << std::endl; // выводим сообщение в консоль
     if (file_stream.is_open()) { // если файл открыт
-        file_stream.write(message.c_str(), (long)message.size()); // записываем сообщение в файл
-        file_stream.write("\n", 1); // записываем перенос строки в файл
+        file_stream  << message << std::endl; // записываем сообщение в файл
     }
 }
 

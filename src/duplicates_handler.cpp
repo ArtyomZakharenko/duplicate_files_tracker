@@ -20,6 +20,7 @@ void DuplicatesHandler::find_files(const std::string &folder, bool recursive_mod
     DIR *dir = opendir(folder.c_str()); // открыть папку
     if (!dir) { // если не удалось открыть папку
         std::cerr << "Error opening folder: " << folder << std::endl; // вывести сообщение об ошибке
+        logger.log("Error opening folder: " + folder); // записать сообщение об ошибке в лог
         return; // завершить метод
     }
 
@@ -40,6 +41,7 @@ void DuplicatesHandler::find_files(const std::string &folder, bool recursive_mod
             } else { // если хеш пустой
                 std::cerr << "Error calculating hash for file: " << filename
                           << std::endl; // вывести сообщение об ошибке
+                logger.log("Error calculating hash for file: " + filename); // записать сообщение об ошибке в лог
             }
         }
     }
@@ -85,6 +87,7 @@ void DuplicatesHandler::replace_duplicates() { // реализация мето�
                 remove_duplicate(files[i]); // удалить дубликат
                 create_hard_link(files[0], files[i]); // создать жесткую ссылку
             }
+            logger.log(""); // вывести пустую строку
         }
     }
 }
@@ -94,6 +97,7 @@ void DuplicatesHandler::remove_duplicate(const std::string &path) { // реал�
         logger.log("Removed duplicate file: " + path); // вывести сообщение об удалении файла
     } else { // если не удалось удалить файл
         std::cerr << "Error removing duplicate file: " << path << std::endl; // вывести сообщение об ошибке
+        logger.log("Error removing duplicate file: " + path); // записать сообщение об ошибке в лог
     }
 }
 
@@ -101,6 +105,7 @@ void DuplicatesHandler::create_hard_link(const std::string &path_from,
                                          const std::string &path_to) { // реализация метода create_hard_link
     if (link(path_from.c_str(), path_to.c_str()) != 0) { // создать жесткую ссылку
         std::cerr << "Error creating hard link for file: " << path_to << std::endl; // вывести сообщение об ошибке
+        logger.log("Error creating hard link for file: " + path_to); // записать сообщение об ошибке в лог
     } else { // если удалось создать жесткую ссылку
         logger.log("Created hard link for file: " + path_to + " -> " +
                    path_from); // вывести сообщение о создании жесткой ссылки
